@@ -1,0 +1,36 @@
+{
+  "name": "선빈♡병철 러브장",
+  "short_name": "선빈♡병철 러브장",
+  "description": "선빈과 병철이 함께 쓰는 가계부·대출·카드 관리. 구글 시트로 두 사람 폰이 실시간 공유돼요.",
+  "id": "./",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#fff7f4",
+  "theme_color": "#ec5f86",
+  "lang": "ko",
+  "dir": "ltr",
+  "categories": ["finance", "productivity", "lifestyle"],
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

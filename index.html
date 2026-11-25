@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ec5f86">
+<meta name="description" content="선빈과 병철이 함께 쓰는 가계부·대출·카드 관리. 구글 시트로 두 사람 폰이 실시간 공유됩니다.">
+<title>선빈♡병철 러브장</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="선빈♡병철 러브장">
+<meta name="application-name" content="선빈♡병철 러브장">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 21s-7.5-4.7-9.4-9A5.4 5.4 0 0 1 12 6.3 5.4 5.4 0 0 1 21.4 12c-1.9 4.3-9.4 9-9.4 9z"/></svg>
+      </span>
+      <div class="brand-text">
+        <h1>선빈♡병철 러브장</h1>
+        <p id="topSub">우리 둘의 돈 이야기</p>
+      </div>
+      <button class="sync-pill local" id="syncPill" type="button" data-goto="share" title="구글 시트 연동 상태">
+        <span class="dot"></span><span id="syncPillText">로컬</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="main" id="main">
+
+    <!-- ================= 홈 (요약) ================= -->
+    <section class="view" id="view-home" aria-labelledby="tab-home">
+      <div class="month-bar">
+        <button class="icon-btn" id="homePrev" type="button" aria-label="이전 달">‹</button>
+        <span class="month-label" id="homeMonth">2026년 11월</span>
+        <button class="icon-btn" id="homeNext" type="button" aria-label="다음 달">›</button>
+        <button class="today-btn" id="homeToday" type="button">이번 달</button>
+      </div>
+
+      <section class="card welcome-card" id="welcomeCard" hidden>
+        <div class="welcome-emoji" aria-hidden="true">💕</div>
+        <h2>러브장에 오신 걸 환영해요</h2>
+        <p>병철·선빈 두 사람이 함께 쓰는 가계부예요.<br>수입·지출을 적고, 대출과 카드값을 한눈에 모아 보세요.</p>
+        <div class="welcome-actions">
+          <button class="primary-btn" type="button" data-goto="ledger">첫 기록 남기기</button>
+          <button class="ghost-btn" id="welcomeSeed" type="button">예시 데이터로 둘러보기</button>
+        </div>
+        <p class="welcome-hint">나중에 <b>공유·관리</b>에서 구글 시트를 연결하면 와이프 폰과 실시간으로 같이 써요.</p>
+      </section>
+
+      <section class="card hero-card">
+        <div class="hero-label">이번 달 순수지</div>
+        <strong class="hero-value num" id="homeNet">0원</strong>
+        <p class="hero-note" id="homeNetNote">수입에서 지출을 뺀 금액이에요</p>
+        <div class="hero-split">
+          <div class="hero-cell">
+            <span>총 수입</span>
+            <strong class="num income" id="homeIncome">0원</strong>
+          </div>
+          <div class="hero-cell">
+            <span>총 지출</span>
+            <strong class="num expense" id="homeExpense">0원</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>누가 얼마나</h2>
+          <span class="muted small">이번 달 비중</span>
+        </div>
+        <div class="share-block" id="shareBars"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>전체 대출 현황</h2>
+          <button class="text-btn" type="button" data-goto="loans">자세히 ›</button>
+        </div>
+        <div class="fig-grid">
+          <div><span>총 대출 원금</span><strong class="num" id="homeLoanPrincipal">0원</strong></div>
+          <div><span>남은 대출</span><strong class="num" id="homeLoanBalance">0원</strong></div>
+          <div><span>상환 완료</span><strong class="num mint" id="homeLoanPaid">0원</strong></div>
+        </div>
+        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="homeLoanProgress" aria-label="전체 대출 상환율">
+          <div class="progress-fill" id="homeLoanBar" style="width:0%"></div>
+        </div>
+        <div class="progress-meta">
+          <span id="homeLoanRate">0% 상환</span>
+          <span id="homeLoanCount">대출 없음</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>이번 달 카드값</h2>
+          <button class="text-btn" type="button" data-goto="cards">자세히 ›</button>
+        </div>
+        <strong class="big num" id="homeCardTotal">0원</strong>
+        <div class="owner-chips" id="homeCardOwners"></div>
+        <div class="paid-note" id="homeCardPaid"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>분류별 지출</h2>
+          <span class="muted small" id="homeCatTotal"></span>
+        </div>
+        <div class="bars" id="homeCatBars"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>최근 내역</h2>
+          <button class="text-btn" type="button" data-goto="ledger">전체 보기 ›</button>
+        </div>
+        <ul class="mini-list" id="homeRecent"></ul>
+      </section>
+    </section>
+
+    <!-- ================= 수입·지출 ================= -->
+    <section class="view" id="view-ledger" hidden aria-labelledby="tab-ledger">
+      <div class="month-bar">
+        <button class="icon-btn" id="ledgerPrev" type="button" aria-label="이전 달">‹</button>
+        <span class="month-label" id="ledgerMonth">2026년 11월</span>
+        <button class="icon-btn" id="ledgerNext" type="button" aria-label="다음 달">›</button>
+        <button class="today-btn" id="ledgerToday" type="button">이번 달</button>
+      </div>
+
+      <section class="card form-card">
+        <div class="card-head">
+          <h2 id="entryFormTitle">기록 추가</h2>
+          <span class="edit-badge" id="entryEditBadge" hidden>수정 중</span>
+        </div>
+
+        <div class="seg" id="entryOwner" role="group" aria-label="작성자 명의">
+          <button type="button" class="seg-btn active" data-owner="b">병철</button>
+          <button type="button" class="seg-btn" data-owner="s">선빈</button>
+          <button type="button" class="seg-btn" data-owner="j">공동</button>
+        </div>
+
+        <div class="type-toggle" id="entryType" role="group" aria-label="지출 또는 수입">
+          <button type="button" class="type-btn active" data-type="expense">지출</button>
+          <button type="button" class="type-btn" data-type="income">수입</button>
+        </div>
+
+        <label class="field">
+          <span>날짜</span>
+          <input type="date" id="entryDate">
+        </label>
+
+        <div class="amount-box">
+          <input id="entryAmount" class="amount-input num" type="text" inputmode="numeric" autocomplete="off" placeholder="0" aria-label="금액">
+          <span class="amount-won">원</span>
+        </div>
+        <div class="quick-row" id="quickRow">
+          <button class="quick" type="button" data-add="1000">+1천</button>
+          <button class="quick" type="button" data-add="5000">+5천</button>
+          <button class="quick" type="button" data-add="10000">+1만</button>
+          <button class="quick" type="button" data-add="50000">+5만</button>
+          <button class="quick" type="button" data-add="100000">+10만</button>
+          <button class="quick ghost" type="button" data-clear="1">초기화</button>
+        </div>
+
+        <div class="field">
+          <span>분류</span>
+          <div class="cat-row">
+            <select id="entryCategory" aria-label="분류"></select>
+            <button class="chip-btn" id="addCatBtn" type="button">+ 항목 추가</button>
+          </div>
+        </div>
+        <div class="inline-add" id="catInline" hidden>
+          <input id="newCatInput" type="text" placeholder="새 분류 이름" maxlength="16">
+          <button class="primary-sm" id="newCatSave" type="button">추가</button>
+          <button class="ghost-sm" id="newCatCancel" type="button">취소</button>
+        </div>
+
+        <label class="field">
+          <span>메모</span>
+          <input id="entryMemo" type="text" placeholder="예: 이마트 장보기" maxlength="40">
+        </label>
+
+        <div class="form-actions">
+          <button class="primary-btn" id="entrySave" type="button">저장</button>
+          <button class="ghost-btn" id="entryCancel" type="button" hidden>수정 취소</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>내역</h2>
+          <span class="muted small" id="entryCount"></span>
+        </div>
+        <div class="filter-row" id="ownerFilter" role="group" aria-label="명의 필터">
+          <button class="filter-chip active" type="button" data-owner="all">전체</button>
+          <button class="filter-chip" type="button" data-owner="b">병철</button>
+          <button class="filter-chip" type="button" data-owner="s">선빈</button>
+          <button class="filter-chip" type="button" data-owner="j">공동</button>
+        </div>
+        <div class="filter-row" id="typeFilter" role="group" aria-label="수입 지출 필터">
+          <button class="filter-chip active" type="button" data-type="all">수입+지출</button>
+          <button class="filter-chip" type="button" data-type="expense">지출</button>
+          <button class="filter-chip" type="button" data-type="income">수입</button>
+        </div>
+        <div id="entryList" class="entry-list"></div>
+        <p class="empty" id="entryEmpty" hidden>이 달에는 아직 기록이 없어요.<br>위에서 첫 기록을 남겨 보세요.</p>
+      </section>
+    </section>
+
+    <!-- ================= 대출 ================= -->
+    <section class="view" id="view-loans" hidden aria-labelledby="tab-loans">
+      <section class="card loan-summary-card">
+        <div class="card-head">
+          <h2>대출 요약</h2>
+          <button class="primary-sm" id="addLoanBtn" type="button">+ 대출 추가</button>
+        </div>
+        <div class="fig-grid">
+          <div><span>최초 원금 합계</span><strong class="num" id="loanPrincipalTotal">0원</strong></div>
+          <div><span>남은 잔액 합계</span><strong class="num" id="loanBalanceTotal">0원</strong></div>
+          <div><span>갚은 금액</span><strong class="num mint" id="loanPaidTotal">0원</strong></div>
+        </div>
+        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="loanProgress">
+          <div class="progress-fill" id="loanBar" style="width:0%"></div>
+        </div>
+        <div class="progress-meta">
+          <span id="loanRate">0% 상환</span>
+          <span id="loanRemainNote"></span>
+        </div>
+        <div class="subtotals" id="loanOwnerSubtotals"></div>
+      </section>
+
+      <div id="loanList" class="loan-list"></div>
+      <p class="empty" id="loanEmpty" hidden>아직 등록된 대출이 없어요.<br>은행별로 하나씩 추가하면 상환율을 자동으로 계산해 드려요.</p>
+    </section>
+
+    <!-- ================= 카드 ================= -->
+    <section class="view" id="view-cards" hidden aria-labelledby="tab-cards">
+      <div class="month-bar">
+        <button class="icon-btn" id="cardPrev" type="button" aria-label="이전 달">‹</button>
+        <span class="month-label" id="cardMonth">2026년 11월</span>
+        <button class="icon-btn" id="cardNext" type="button" aria-label="다음 달">›</button>
+        <button class="today-btn" id="cardToday" type="button">이번 달</button>
+      </div>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>이번 달 카드값</h2>
+          <button class="primary-sm" id="addCardBtn" type="button">+ 카드 추가</button>
+        </div>
+        <div class="card-total-hero">
+          <span>부부 합산</span>
+          <strong class="num" id="cardTotal">0원</strong>
+        </div>
+        <div class="card-split" id="cardSplit"></div>
+        <div class="paid-track" id="cardPaidTrack"></div>
+      </section>
+
+      <div id="cardList" class="card-list"></div>
+      <p class="empty" id="cardEmpty" hidden>이 달에 등록된 카드값이 없어요.<br>카드를 추가하면 병철·선빈 카드값을 나눠서 볼 수 있어요.</p>
+    </section>
+
+    <!-- ================= 공유·관리 ================= -->
+    <section class="view" id="view-share" hidden aria-labelledby="tab-share">
+      <section class="card">
+        <div class="card-head">
+          <h2>구글 시트 실시간 공유</h2>
+          <span class="status-tag" id="syncTag">로컬 저장</span>
+        </div>
+        <p class="hint">아래에 웹앱 URL을 넣으면 두 사람 폰이 같은 구글 시트를 보고, 기록이 바뀔 때마다 자동으로 주고받아요. URL이 없어도 이 폰에 안전하게 저장됩니다.</p>
+        <label class="field">
+          <span>Apps Script 웹앱 URL</span>
+          <input id="gasUrl" type="url" inputmode="url" autocomplete="off" placeholder="https://script.google.com/macros/s/.../exec">
+        </label>
+        <div class="btn-row">
+          <button class="primary-btn" id="saveUrlBtn" type="button">저장</button>
+          <button class="ghost-btn" id="pullBtn" type="button">불러오기</button>
+          <button class="ghost-btn" id="pushBtn" type="button">보내기</button>
+        </div>
+        <label class="switch-row">
+          <input type="checkbox" id="autoSync">
+          <span>데이터가 바뀌면 자동으로 시트에 보내기</span>
+        </label>
+        <div class="sync-status" id="syncStatus">이 폰에만 저장 중이에요.</div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>2분 따라하기</h2>
+          <span class="muted small">한 번만 하면 돼요</span>
+        </div>
+        <ol class="steps">
+          <li><strong>구글 시트 만들기</strong><span>시트.new 또는 드라이브에서 새 스프레드시트를 만들고 이름을 ‘러브장 데이터’로 정해요.</span></li>
+          <li><strong>확장 프로그램 → Apps Script</strong><span>시트 위쪽 메뉴에서 <b>확장 프로그램 → Apps Script</b>를 눌러요.</span></li>
+          <li><strong>아래 코드 붙여넣기</strong><span>편집기의 기존 내용을 모두 지우고, 아래 <b>Code.gs</b> 코드를 통째로 붙여넣은 뒤 저장(Ctrl+S)해요.</span></li>
+          <li><strong>웹앱으로 배포</strong><span><b>배포 → 새 배포 → 유형 ‘웹 앱’</b>, 실행 계정 ‘나’, 액세스 권한 <b>‘모든 사용자’</b>로 배포하고 권한을 허용해요.</span></li>
+          <li><strong>URL 복사 → 위에 붙여넣기</strong><span>나온 <b>웹 앱 URL</b>을 복사해 위 칸에 넣고 저장하면 끝! 와이프 폰에도 같은 URL을 넣으면 둘이 같은 장부를 봐요.</span></li>
+        </ol>
+        <p class="hint">코드를 고치면 <b>배포 → 배포 관리 → 수정 → 새 버전</b>으로 다시 배포해야 반영돼요.</p>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Code.gs</h2>
+          <button class="text-btn copy-btn" id="copyCodeBtn" type="button">복사</button>
+        </div>
+        <p class="hint">아래 코드를 그대로 붙여넣으면 시트 안에 데이터를 저장하고, 두 기기가 같은 JSON을 주고받아요.</p>
+        <pre class="code-block" id="codeBlock"><code></code></pre>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>백업 · 복원</h2></div>
+        <div class="btn-row wrap">
+          <button class="ghost-btn" id="exportJson" type="button">JSON 내보내기</button>
+          <button class="ghost-btn" id="importJsonBtn" type="button">JSON 가져오기</button>
+          <button class="ghost-btn" id="exportCsv" type="button">CSV 내보내기</button>
+          <input type="file" id="importFile" accept="application/json,.json" hidden>
+        </div>
+        <p class="hint">가져온 파일은 같은 항목을 최신 내용으로 합쳐요. 내보낸 파일은 다운로드 폴더에 저장돼요.</p>
+        <div class="btn-row wrap">
+          <button class="ghost-btn" id="seedBtn" type="button">예시 데이터 넣기</button>
+          <button class="danger-btn" id="clearBtn" type="button">전체 지우기</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>저장된 기록</h2></div>
+        <div class="data-counts" id="dataCounts"></div>
+        <p class="hint">이 폰의 저장 공간(localStorage)과, 연결했다면 구글 시트에 함께 저장돼요.</p>
+      </section>
+    </section>
+
+  </main>
+
+  <nav class="tabbar" aria-label="주요 메뉴">
+    <button class="tab active" id="tab-home" type="button" data-tab="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.8V20h5v-5.5h4V20h5V9.8"/></svg>
+      <span>홈</span>
+    </button>
+    <button class="tab" id="tab-ledger" type="button" data-tab="ledger">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5h14a1 1 0 0 1 1 1V19a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19V5.5A1 1 0 0 1 4.5 4.5z"/><path d="M8 9h8M8 13h5"/></svg>
+      <span>수입·지출</span>
+    </button>
+    <button class="tab" id="tab-loans" type="button" data-tab="loans">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 4l9 5.5"/><path d="M4.5 9.5V18M9.5 9.5V18M14.5 9.5V18M19.5 9.5V18"/><path d="M3 20.5h18"/></svg>
+      <span>대출</span>
+    </button>
+    <button class="tab" id="tab-cards" type="button" data-tab="cards">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.8" y="5.5" width="18.4" height="13" rx="2.4"/><path d="M2.8 10h18.4M6.5 15h3"/></svg>
+      <span>카드</span>
+    </button>
+    <button class="tab" id="tab-share" type="button" data-tab="share">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="17.5" cy="6" r="2.7"/><circle cx="6.5" cy="12" r="2.7"/><circle cx="17.5" cy="18" r="2.7"/><path d="M9 10.7l6-3.3M9 13.3l6 3.3"/></svg>
+      <span>공유·관리</span>
+    </button>
+  </nav>
+
+  <!-- 공용 모달 -->
+  <div class="modal-backdrop" id="modalBackdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <h2 id="modalTitle">제목</h2>
+        <button class="icon-btn close" id="modalClose" type="button" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-foot" id="modalFoot"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</div>
+<script src="./app.js"></script>
+</body>
+</html>
